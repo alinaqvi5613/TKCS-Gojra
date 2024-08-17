@@ -174,24 +174,28 @@ window.addEventListener('popstate', function(event) {
 });
 window.addEventListener('load', function() {
     const imageGallery = document.querySelector('.imageGallery');
-    const images = document.querySelectorAll('.imges');
+    const imgH = document.querySelector('.imgH');
 
     function setGalleryHeight() {
-        let maxHeight = 0;
-
-        images.forEach((img) => {
-            if (img.clientHeight > maxHeight) {
-                maxHeight = img.clientHeight;
-            }
-        });
-
-        imageGallery.style.height = maxHeight + 'px';
+        const imgHeight = imgH.clientHeight;
+        imageGallery.style.height = imgHeight + 'px';
     }
 
-    // Initial height set
-    setGalleryHeight();
+    // Use IntersectionObserver to detect when the image is starting to be displayed
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+                setGalleryHeight();
+                observer.disconnect();  // Stop observing after height is set
+            }
+        });
+    }, {
+        threshold: 0.01 // Trigger when 1% of the image is visible
+    });
 
-    // If images change size (e.g., window resize, etc.), update the gallery height
+    observer.observe(imgH);
+
+    // Update the gallery height on window resize
     window.addEventListener('resize', setGalleryHeight);
 });
 const slides = document.querySelectorAll(".slide");
